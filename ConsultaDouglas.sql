@@ -255,15 +255,64 @@ SELECT * FROM consultatiposervico;
 
 
 /*JOIN MANIPULAÇÃO AVANÇADA*/
-
 SELECT consulta.dataHora, 
-		 a.nomeAnimal,
-		 c.nomeCliente,
-		 veterinario.nomeVeterinario
+       a.nomeAnimal,
+       c.nomeCliente,
+       veterinario.nomeVeterinario,
+       tiposervico.nomeServico
+       
 FROM cliente c
 INNER JOIN animal a
-ON c.idCliente = a.idCliente
+    ON c.idCliente = a.idCliente
 INNER JOIN consulta
-ON a.idAnimal = consulta.idAnimal
+    ON a.idAnimal = consulta.idAnimal
 INNER JOIN veterinario
-ON consulta.idVeterinario = veterinario.idVeterinario
+    ON consulta.idVeterinario = veterinario.idVeterinario
+INNER JOIN consultatiposervico
+    ON consulta.idConsulta = consultatiposervico.idConsulta
+INNER JOIN tiposervico
+    ON tiposervico.idtipoServico = consultatiposervico.idtipoServico
+    /*WHERE MONTH (c.datahora) = 1*/
+WHERE consulta.dataHora BETWEEN '2026-01-01' AND '2026-01-31'
+ORDER BY veterinario.nomeVeterinario, consulta.dataHora
+
+
+/*Listar nome veterinário, data em que consultou, animal atendido, considerando todos os veterinarios*/
+SELECT veterinario.nomeVeterinario,
+		consulta.datahora,
+		animal.nomeAnimal
+FROM veterinario
+LEFT JOIN consulta
+ON veterinario.idVeterinario = consulta.idVeterinario
+LEFT JOIN animal
+ON animal.idAnimal = consulta.idAnimal
+/*WHERE animal.idanimal = 1*/
+SELECT * FROM animal
+
+/* Trazer quantidade de consultas executadas na clínica ao longo de todos o período */
+SELECT COUNT(idconsulta) AS 'Qtd de consulta' FROM consulta
+
+/*Trazer o serviço mais caro da clínica*/
+SELECT MAX(valor) FROM tiposervico
+
+/*Trazer o serviço mais barato da clínica*/
+SELECT MIN(valor) FROM tiposervico
+
+/*Trazer a média dos valores dos serviços*/
+SELECT AVG(valor) AS 'Média de valores' FROM tiposervico
+
+/*Trazer o faturamento bruto da clínica*/
+SELECT SUM(valorservico) FROM consultatiposervico
+
+/*Trazer a quantidade de consultas que ocorreram com 
+cada animalzinho 
+Ex.: Bidu --------- 3 consultas 
+     Penélope ----- 2 consultas
+	  ordenado pela quantidade de consultas da maior para menor*/
+     
+SELECT nomeanimal, COUNT(idconsulta) AS 'Qtd de consulta' FROM consulta 
+INNER JOIN animal    
+ON consulta.idanimal = animal.idAnimal
+GROUP BY nomeanimal
+HAVING COUNT(idconsulta)>=3 /*HAVING quando for campo caulculado (funções) sempre antes de ORDER BY */
+ORDER BY COUNT(idconsulta) DESC 
