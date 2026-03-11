@@ -316,3 +316,21 @@ ON consulta.idanimal = animal.idAnimal
 GROUP BY nomeanimal
 HAVING COUNT(idconsulta)>=3 /*HAVING quando for campo caulculado (funções) sempre antes de ORDER BY */
 ORDER BY COUNT(idconsulta) DESC 
+
+/*Listar a quantidade de animais por espécie*/
+SELECT especie, COUNT(idanimal) AS 'Qtn' 
+FROM animal 
+GROUP BY especie
+
+/*Listar todas as cidades onde tenho clientes*/
+/*DISTINCT o comando DISTINCT serve para remover valores duplicados de um 
+resultado de consulta. Ou seja, ele faz com que o SELECT retorne apenas valores únicos */
+SELECT DISTINCT cidade FROM cliente
+
+SELECT DISTINCT raca FROM animal
+WHERE especie = 'cachorro'
+
+/*Paginação*/
+SELECT * FROM veterinario
+ORDER BY idveterinario ASC  
+LIMIT 2
