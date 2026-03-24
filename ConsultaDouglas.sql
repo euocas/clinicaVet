@@ -334,3 +334,113 @@ WHERE especie = 'cachorro'
 SELECT * FROM veterinario
 ORDER BY idveterinario ASC  
 LIMIT 2
+
+/*CRIAÇÃO E USO DE VIEW*/
+
+CREATE VIEW vw_RelatorioGeralConsultas AS	
+
+SELECT consulta.dataHora,
+  	    a.nomeAnimal,
+  	    c.nomeCliente,
+  	    veterinario.nomeVeterinario,
+  	    tiposervico.nomeServico
+FROM cliente c
+INNER JOIN animal a
+ON  a.idcliente = c.idCliente
+INNER JOIN consulta 
+ON a.idAnimal = consulta.idAnimal
+INNER JOIN veterinario
+ON consulta.idVeterinario = veterinario.idVeterinario
+INNER JOIN consultatiposervico 
+ON consultatiposervico.idConsulta = consulta.idConsulta
+INNER JOIN tiposervico
+ON tiposervico.idtiposervico = consultatiposervico.idtipoServico
+ORDER BY veterinario.nomeVeterinario,consulta.dataHora ASC
+
+SELECT * FROM vw_relatoriogeralconsultas
+
+SELECT nomeAnimal, nomeServico 
+FROM vw_relatoriogeralconsultas
+WHERE nomeServico='Microchipagem'
+
+/*CRIAÇÃO E USO DE STORED PROCEDURE -SELECT- EXIBIÇÃO DE DADOS */
+
+CREATE PROCEDURE ps_RelatorioConsultasPorProcedimento
+(
+	IN procedimento VARCHAR(50)
+)
+SELECT nomeAnimal, nomeServico 
+FROM vw_relatoriogeralconsultas
+WHERE nomeServico=procedimento
+
+CALL ps_RelatorioConsultasPorProcedimento('Vacina');
+CALL ps_RelatorioConsultasPorProcedimento('Microchipagem');
+
+/*CRIAÇÃO E USO DE STORED PROCEDURE -INSERT- ALTERAÇÃO DE DADOS */
+
+CREATE PROCEDURE pi_tipoServico
+(
+	IN _nomeServico VARCHAR(50),
+	IN _valor DECIMAL(10,2)
+)
+INSERT INTO tiposervico (nomeServico, valor)
+VALUES(_nomeServico, _valor)
+
+CALL pi_tipoServico('Raio X',200.00)
+
+SELECT * FROM tiposervico
+
+
+/*UPDATE
+DELETE
+SELECT
+INSERT*/
+
+/*CRIAR VIEW QUE TRAGA A DATA DA CONSULTA, NOME DO PET, NOME DO CLIENTE E TELEFONE DO CLIENTE*/
+
+DROP VIEW IF EXISTS vw_ContatoClientes;
+
+CREATE VIEW vw_ContatoClientes AS
+SELECT 
+    consulta.dataHora,
+    a.nomeAnimal,
+    c.nomeCliente,
+    a.especie,
+    contatotelefonico.ddi,
+    contatotelefonico.ddd,
+    contatotelefonico.numero
+FROM cliente c
+INNER JOIN animal a
+    ON a.idcliente = c.idcliente
+INNER JOIN consulta
+    ON a.idAnimal = consulta.idanimal
+INNER JOIN consultatiposervico
+    ON consultatiposervico.idconsulta = consulta.idConsulta
+INNER JOIN tiposervico
+    ON tiposervico.idTipoServico = consultatiposervico.idtiposervico
+INNER JOIN contatotelefonico
+    ON contatotelefonico.idCliente
+    
+
+SELECT * FROM vw_ContatoClientes
+
+
+/*CRIAR UMA PROCEDURE QUE TRAGA O NOME DO PET, 
+O NOME DO CLIENTE E TELEFONE DE ACORDO COM O ANIMAL*
+EX: CACHORRO, GATO, ETC...*/
+
+DROP PROCEDURE ps_dadosPet
+CREATE PROCEDURE ps_dadosPet
+(
+
+IN _especie VARCHAR(50)
+					
+)
+SELECT nomeAnimal, nomeCliente, ddd, ddi, numero
+FROM vw_ContatoClientes
+WHERE especie = _especie
+
+CALL ps_dadosPet('cachorro')
+
+SELECT * FROM animal
+WHERE especie = 'cachorro'
